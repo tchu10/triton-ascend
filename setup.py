@@ -10,7 +10,7 @@ import sysconfig
 import tarfile
 import zipfile
 import urllib.request
-import json
+import glob
 from io import BytesIO
 from distutils.command.clean import clean
 from pathlib import Path
@@ -30,6 +30,12 @@ import pybind11
 
 script_dir = os.path.dirname(__file__)
 triton_python_dir = os.path.join(os.path.dirname(__file__), "triton/python")
+is_manylinux = os.environ.get("IS_MANYLINUX", None)
+readme = os.path.join(script_dir, "README.md")
+if not os.path.exists(readme):
+    raise FileNotFoundError("Unable to find 'README.md'")
+with open(readme, encoding="utf-8") as fdesc:
+    long_description = fdesc.read()
 
 @dataclass
 class Backend:
@@ -667,6 +673,28 @@ class plugin_bdist_wheel(bdist_wheel):
         add_links()
         bdist_wheel.run(self)
 
+        if is_manylinux:
+            file = glob.glob(os.path.join(self.dist_dir, "*linux*.whl"))[0]
+
+            auditwheel_cmd = [
+                "auditwheel",
+                "-v",
+                "repair",
+                "--plat",
+                f"manylinux_2_27_{platform.machine()}",
+                "--plat",
+                f"manylinux_2_28_{platform.machine()}",
+                "-w",
+                self.dist_dir,
+                file,
+            ]
+
+            try:
+                subprocess.run(auditwheel_cmd, check=True, stdout=subprocess.PIPE)
+            finally:
+                os.remove(file)
+
+
 class plugin_egginfo(egg_info):
 
     def run(self):
@@ -751,6 +779,7 @@ def get_package_dir(backends):
     package_dir["triton/triton_patch/runtime"] = f"{triton_patch_root_rel_dir}/runtime"
     return package_dir
 
+
 def get_entry_points():
     entry_points = {}
     return entry_points
@@ -769,15 +798,25 @@ def get_git_commit_hash(length=8):
         return ""
 
 
+# temporary design
+# Using version.txt containing version and commitid will be better and
+# the version.txt will be converted to versin.py when compilation.
+def get_version():
+    version = os.environ.get("TRITON_VERSION", "3.2.0") + os.environ.get(
+        "TRITON_WHEEL_VERSION_SUFFIX", ""
+    )
+    if not is_manylinux:
+        version += get_git_commit_hash()
+
+    return version
+
+
 setup(
-    name=os.environ.get("TRITON_WHEEL_NAME", "triton"),
-    version=os.environ.get("TRITON_VERSION", "3.2.0")
-    + get_git_commit_hash()
-    + os.environ.get("TRITON_WHEEL_VERSION_SUFFIX", ""),
-    author="",
-    author_email="",
+    name=os.environ.get("TRITON_WHEEL_NAME", "triton_ascend"),
+    version=get_version(),
     description="A language and compiler for custom Deep Learning operations on Huawei hardwares",
-    long_description="",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     package_dir=get_package_dir(_backends),
     packages=get_packages(_backends),
     entry_points=get_entry_points(),
