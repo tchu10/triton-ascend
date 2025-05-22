@@ -641,6 +641,8 @@ language.math.erf = erf
 language.math.tanh = tanh
 language.math.floor = floor
 language.math.ceil = ceil
+language.math.isnan = language.extra.ascend.libdevice.isnan
+language.math.isinf = language.extra.ascend.libdevice.isinf
 """
     append_at_file_end(init_path, content_to_append)
 
