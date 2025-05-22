@@ -1,0 +1,10 @@
+ascend/backend/triton-adapter-opt
+__pycache__/
+kernel_meta/
+.vscode/
+.cache/
+fusion_result.json
+compile_commands.json
+*.egg-info/
+build/
+dist/
