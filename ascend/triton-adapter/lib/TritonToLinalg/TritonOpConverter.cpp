@@ -604,10 +604,10 @@ ReduceConverter::getRedOps(triton::ReduceOp redOp) const {
 }
 
 bool ReduceConverter::isReductionOpSupported(Operation *redOp) const {
-  return isa<arith::AddFOp, arith::AddIOp, arith::MaximumFOp, arith::MaxNumFOp,
-             arith::MinimumFOp, arith::MinNumFOp, arith::MinSIOp,
-             arith::MinUIOp, arith::MaxSIOp, arith::MaxUIOp, arith::AndIOp,
-             arith::OrIOp, arith::XOrIOp>(redOp);
+  return isa<arith::AddFOp, arith::AddIOp, arith::MulFOp, arith::MaximumFOp,
+             arith::MaxNumFOp, arith::MinimumFOp, arith::MinNumFOp,
+             arith::MinSIOp, arith::MinUIOp, arith::MaxSIOp, arith::MaxUIOp,
+             arith::AndIOp, arith::OrIOp, arith::XOrIOp>(redOp);
 }
 
 arith::ConstantOp
@@ -621,6 +621,9 @@ ReduceConverter::getRedBaseConstOp(ConversionPatternRewriter &rewriter,
                   })
                   .Case([&](arith::AddIOp) {
                     return rewriter.getIntegerAttr(constantType, 0);
+                  })
+                  .Case([&](arith::MulFOp) {
+                    return rewriter.getFloatAttr(constantType, 1.f);
                   })
                   .Case<arith::MaximumFOp, arith::MaxNumFOp>([&](auto) {
                     return rewriter.getFloatAttr(
@@ -669,19 +672,19 @@ bool ReduceConverter::requiresF32Conversion(const Type elemType,
   return isa<FloatType>(elemType) &&
          elemType.getIntOrFloatBitWidth() <
              Float32Type::get(elemType.getContext()).getWidth() &&
-         isa<arith::AddFOp>(redOp);
+         (isa<arith::AddFOp>(redOp) || isa<arith::MulFOp>(redOp));
 }
 
 Value ReduceConverter::getRedElement(
     Value lhs, Value rhs, const Location loc, Operation *redOp, OpBuilder &b,
     const bool convertLhsToF32Precision) const {
   return llvm::TypeSwitch<Operation *, Value>(redOp)
-      .Case([&](arith::AddFOp) {
+      .Case<arith::AddFOp, arith::MulFOp>([&](auto redOp) {
         if (convertLhsToF32Precision) {
           lhs = b.create<arith::ExtFOp>(loc, Float32Type::get(b.getContext()),
                                         lhs);
         }
-        return b.create<arith::AddFOp>(loc, lhs, rhs);
+        return b.create<decltype(redOp)>(loc, lhs, rhs);
       })
       .Case<arith::AddIOp, arith::MaximumFOp, arith::MaxNumFOp,
             arith::MinimumFOp, arith::MinNumFOp, arith::MinSIOp, arith::MinUIOp,
