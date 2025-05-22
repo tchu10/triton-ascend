@@ -108,8 +108,8 @@ void TritonToLinalgPass::convertTTFunc(triton::FuncOp func,
       auto arg = func.getArgument(i);
       // Special method for i1 arg
       if (!isa<BaseMemRefType>(arg.getType()) ||
-          dyn_cast<BaseMemRefType>(arg.getType())
-              .getElementTypeBitWidth() != 1) {
+          dyn_cast<BaseMemRefType>(arg.getType()).getElementTypeBitWidth() !=
+              1) {
         continue;
       }
 
@@ -263,11 +263,11 @@ void TritonToLinalgPass::addDynamicLegal(
 
 void TritonToLinalgPass::populateTritonToLinalgCanonicalizationPatterns(
     RewritePatternSet &patterns) {
-  patterns.add<TTOpConverters::AssertConverter>(patterns.getContext());
+  patterns.add<TTOpConverters::AssertCanonicalizer>(patterns.getContext());
   patterns.add<LoadStoreConverter::LoadStoreCanonicalizer<triton::LoadOp>,
                LoadStoreConverter::LoadStoreCanonicalizer<triton::StoreOp>>(
       patterns.getContext());
-  patterns.add<TTOpConverters::SelectConverter>(patterns.getContext());
+  patterns.add<TTOpConverters::SelectCanonicalizer>(patterns.getContext());
   patterns.add<TTOpConverters::BitcastCanonicalizer>(patterns.getContext());
   patterns.add<LoadStoreConverter::ScalarStoreCanonicalizer>(
       patterns.getContext());
@@ -320,6 +320,8 @@ void TritonToLinalgPass::populateTritonToLinalgCanonicalizationPatterns(
                // TTOpConverters::ScalarMathCanonicalizer<arith::ExtFOp>
                // TTOpConverters::ScalarMathCanonicalizer<arith::TruncFOp>
                >(patterns.getContext());
+  patterns.add<TTOpConverters::MakeTensorPtrCanonicalizer>(
+      patterns.getContext());
 }
 
 void TritonToLinalgPass::populateTritonToLinalgConversionPatterns(
