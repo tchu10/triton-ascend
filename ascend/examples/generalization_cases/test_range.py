@@ -50,6 +50,7 @@ def get_torch_typename(dtype):
         tyname = torch.bool
     else:
         raise ValueError('Invalid parameter \"dtype\" is found : {}'.format(dtype))
+    return tyname
 
 typelist = ['int8','int16','int32','int64']
 

@@ -126,7 +126,7 @@ y_ref: tensor([[ 0.2512,  0.0647,  0.8389,  ...,  2.3652,  1.5039,  1.1904],
         [ 0.4463,  1.2441,  0.2224,  ...,  2.2969, -0.3311,  0.6177],
         [-0.0113,  0.8423,  0.3696,  ...,  1.3838,  1.2471,  0.8750]],
        device='npu:0', dtype=torch.float16, grad_fn=<NativeLayerNormBackward0>)
-layernorm 128,128 torch.float16 passed
+Layer Normalization 128,128 torch.float16 PASSED!
 y_tri: tensor([[-0.4180,  0.9648,  0.8633,  ...,  0.7656,  0.8438,  0.3633],
         [ 0.4453,  0.5352,  0.9102,  ...,  1.1875, -0.0562,  0.5391],
         [ 1.3125,  0.9961,  0.9219,  ...,  0.9688,  0.0025,  0.5156],
@@ -143,7 +143,7 @@ y_ref: tensor([[-0.4180,  0.9648,  0.8633,  ...,  0.7656,  0.8438,  0.3633],
         [ 1.1641,  0.6680,  0.8281,  ...,  0.9258,  0.9062,  0.1768],
         [-0.2129,  0.7109,  0.9141,  ...,  0.7891, -0.0767,  0.5156]],
        device='npu:0', dtype=torch.bfloat16, grad_fn=<NativeLayerNormBackward0>)
-layernorm 128,128 torch.bfloat16 passed
+Layer Normalization 128,128 torch.bfloat16 PASSED!
 y_tri: tensor([[-0.2980,  0.2922,  0.6481,  ...,  0.9786,  0.7304,  0.8982],
         [ 1.5911,  0.0474,  0.6518,  ...,  0.8013,  0.2435,  1.3748],
         [ 1.3024,  0.6265,  0.6473,  ...,  0.8423,  0.0984, -1.1839],
@@ -162,3 +162,6 @@ y_ref: tensor([[-0.2980,  0.2922,  0.6481,  ...,  0.9786,  0.7304,  0.8982],
        device='npu:0', grad_fn=<NativeLayerNormBackward0>)
 Layer Normalization 128,128 torch.float32 PASSED!
 ```
+"Layer Normalization 128,128 torch.float16 PASSED!、\
+Layer Normalization 128,128 torch.bfloat16 PASSED! \
+Layer Normalization 128,128 torch.float32 PASSED!"表明Triton和PyTorch上float16、bfloat16、float32数据类型的输出结果完全一致。
