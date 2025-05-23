@@ -1,5 +1,10 @@
 # 安装指南
-
+# Python wheel安装
+通过 Python Wheel 安装包进行安装是最快捷、最简便的方式。使用下面命令安装：
+```
+pip install triton-ascend==3.2.0rc1
+```
+# 源代码安装
 ## 前置步骤
 
 ### Python版本要求
@@ -15,7 +20,11 @@
 
 在安装过程中，请选择 CANN 版本 8.2.RC1.alpha002，并根据实际环境指定操作系统、安装方式和业务场景。
 
-官方安装指引链接：
+社区下载链接：
+```
+https://www.hiascend.com/developer/download/community/result?module=cann
+```
+社区安装指引链接：
 ```
 https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha002/softwareinst/instg/instg_0001.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit
 ```
@@ -38,10 +47,14 @@ pip install torch_npu==2.6.0rc1
 ### **系统要求**
 
 - GCC >= 9.4.0
+- GLIBC >= 2.29
+- clang
 
 ### 安装系统库依赖
 
 安装zlib1g-dev/lld/clang，可选安装ccache包用于加速构建。
+- 推荐版本 clang >= 15
+- 推荐版本 lld >= 15
 ```
 以ubuntu系统为例：
 apt update
@@ -58,7 +71,7 @@ pip install attrs==24.2.0 numpy==1.26.4 scipy==1.13.1 decorator==5.1.1 psutil==6
 ### **克隆 Triton-Ascend**
 
 ```
-git clone --recurse-submodules https://gitee.com/ascend/triton-ascend.git
+git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shallow-submodules
 ```
 
 ### **基于LLVM构建**
@@ -74,6 +87,7 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
    ```
 
 2. 构建LLVM。可以运行以下命令：
+- 注：请在下面指令中设置您想安装LLVM的目标路径 -DCMAKE_INSTALL_PREFIX=yourpath/llvm-install
 
    ```
    cd $HOME/llvm-project  # your clone of LLVM.
@@ -86,13 +100,43 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
       -DLLVM_ENABLE_PROJECTS="mlir;llvm"  \
       -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
       -DCMAKE_INSTALL_PREFIX=yourpath/llvm-install
-   ninja -j 32 install
+   ninja install
    ```
-   - 说明：若环境上ccache已安装且正常运行，可设置`-DLLVM_CCACHE_BUILD=ON`加速构建, 否则请勿开启。
-
+- 说明：若环境上ccache已安装且正常运行，可设置`-DLLVM_CCACHE_BUILD=ON`加速构建, 否则请勿开启。
+- clang安装LLVM
+  
+  可使用clang安装LLVM，环境上按安装clang、lld，并指定版本(推荐版本clang>=15，lld>=15)，
+  以下面指令安装clang，：
+  ``` 
+  apt-get install -y clang-15 lld-15 ccache
+  ``` 
+  如果环境上有多个版本的clang，请设置clang为当前安装的版本clang-15:
+  ``` 
+  update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 20; \
+  update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 20; \
+  update-alternatives --install /usr/bin/lld lld /usr/bin/lld-15 20
+  ```
+  设置C编译器为clang，以下面指令安装LLVM：
+  ```
+  cd build
+  cmake ../llvm \
+    -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DLLVM_ENABLE_ASSERTIONS=ON \
+    -DLLVM_ENABLE_PROJECTS="mlir;llvm" \
+    -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
+    -DCMAKE_INSTALL_PREFIX=yourpath/llvm-install \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DLLVM_ENABLE_LLD=ON
+  ninja install
+  ```
 ### **构建 Triton-Ascend**
 
 1. 源码安装
+
+- 注1：请在下面指令中设置您在上一步LLVM安装的目标路径 LLVM_SYSPATH=yourpath/llvm-install
+- 注2：请确保已安装clang>=15，lld>=15，TRITON_BUILD_WITH_CLANG_LLD=true使用了clang和lld
    ```
    cd triton-ascend/
    LLVM_SYSPATH=yourpath/llvm-install \
@@ -103,7 +147,7 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
    TRITON_APPEND_CMAKE_ARGS="-DTRITON_BUILD_UT=OFF" \
    python3 setup.py install
    ```
-   如果已安装`ccache`，可以使用以下命令加速编译：
+   如果已安装`ccache`，可以使用以下命令加速编译 TRITON_BUILD_WITH_CCACHE=true。
    ```
    cd triton-ascend/
    LLVM_SYSPATH=yourpath/llvm-install \
@@ -118,7 +162,7 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
 
 2. 运行Triton示例
    ```
-   # 导出CANN环境变量（以root用户默认安装路径`/usr/local/Ascend`为例）
+   # 设置CANN环境变量（以root用户默认安装路径`/usr/local/Ascend`为例）
    source /usr/local/Ascend/ascend-toolkit/set_env.sh
    # 运行tutorials示例：
    python3 ./triton-ascend/ascend/examples/tutorials/01-vector-add.py
