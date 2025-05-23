@@ -6,6 +6,8 @@ Triton-Ascend面向昇腾平台，旨在让Triton代码能够在昇腾硬件上�
 
 # 源码安装
 
+详细安装手册参见[Installation.md](./docs/Installation.md)
+
 ## **系统要求**
 
 - GCC >= 9.4.0
@@ -230,10 +232,6 @@ python3 01-vector-add.py
 |        Atomic Ops        | atomic_add             |
 |                          | atomic_max             |
 |                          | atomic_min             |
-| Random Number Generation | randint4x              |
-|                          | randint                |
-|                          | rand                   |
-|                          | randn                  |
 |         Iterators        | range                  |
 |                          | static_range           |
 |     Compiler Hint Ops    | debug_barrier          |
@@ -241,7 +239,7 @@ python3 01-vector-add.py
 |                          | static_assert          |
 |                          | device_print           |
 
-各op支持度及使用约束参见[Python_API.md](./docs/Python_API.md)
+各op详细支持度及使用约束参见[Python_API.md](./docs/Python_API.md)
 
 ## 当前支持的开源算子仓算子列表
 
