@@ -17,7 +17,7 @@
 
 官方安装指引链接：
 ```
-https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha002/softwareinst/instg/instg_0001.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit
+https://www.hiascend.com/developer/download/community/result?module=cann
 ```
 该文档提供了完整的安装流程说明与依赖项配置建议，适用于需要全面部署 CANN 环境的用户。
 
