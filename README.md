@@ -3,17 +3,69 @@
 Triton是一种编程语言和编译器，用于高效编写定制的深度学习原语。其目标是提供一个开源环境，让开发者能够高效开发代码，同时兼具比其他现有领域专用语言DSL（domain-specific language）更强的灵活性。
 
 Triton-Ascend面向昇腾平台，旨在让Triton代码能够在昇腾硬件上高效运行。
-# Python wheel安装
-通过 Python Wheel 安装包进行安装是最快捷、最简便的方式。使用下面命令安装：
+
+本文档提供了2种安装方式以满足不同用户的需求。您可以根据自己的具体需求选择最合适的安装方法。
+
+1. Python wheel安装：
+通过 Python Wheel 安装包进行安装是最快捷、最简便的方式，适用于希望快速部署 Triton-Ascend 的用户。
+2. 源代码编译安装：
+如果您需要对 triton-ascend 进行开发或自定义修改，则应采用源代码编译安装的方法。这种方式允许您根据项目需求调整源代码，并编译安装定制化的 
+triton-ascend 版本。
+
+## 环境准备
+### Python版本要求
+
+当前Triton-Ascend要求的Python版本为:**py3.9-py3.11**。
+
+### 安装Ascend CANN
+异构计算架构CANN（Compute Architecture for Neural Networks）是昇腾针对AI场景推出的异构计算架构，
+向上支持多种AI框架，包括MindSpore、PyTorch、TensorFlow等，向下服务AI处理器与编程，发挥承上启下的关键作用，是提升昇腾AI处理器计算效率的关键平
+台。
+
+您可以访问昇腾社区官网，根据其提供的软件安装指引完成 CANN 的安装配置。
+
+在安装过程中，请选择 CANN 版本 8.2.RC1.alpha002，并根据实际环境指定操作系统、安装方式和业务场景。
+
+社区下载链接：
 ```
-pip install triton-ascend==3.2.0rc1
+https://www.hiascend.com/developer/download/community/result?module=cann
+```
+社区安装指引链接：
+```
+https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha002/softwareinst/instg/instg_0001.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit
+```
+该文档提供了完整的安装流程说明与依赖项配置建议，适用于需要全面部署 CANN 环境的用户。
+
+### 安装python依赖
+```
+pip install decorator cffi protobuf==3.20 attrs pyyaml pathlib2 scipy psutil absl-py tvm cloudpickle pybind11 einops pytest te numpy
 ```
 
-# 源码安装
+### 安装torch_npu
+
+当前配套的torch_npu版本为2.6.0rc1版本。
+```
+pip install torch_npu==2.6.0rc1
+```
+
+## Python wheel 安装 Triton-Ascend
+通过 Python Wheel 安装包安装 Triton-Ascend 是最快捷、最简便的方式。使用下面命令安装：
+```
+pip install triton-ascend
+```
+运行Triton示例
+ ```
+ # 设置CANN环境变量（以root用户默认安装路径`/usr/local/Ascend`为例）
+ source /usr/local/Ascend/ascend-toolkit/set_env.sh
+ # 运行tutorials示例：
+ python3 ./triton-ascend/ascend/examples/tutorials/01-vector-add.py
+ ```
+## 源代码安装 Triton-Ascend
+如果您需要对 triton-ascend 进行开发或自定义修改，则应采用源代码编译安装的方法。这种方式允许您根据项目需求调整源代码，并编译安装定制化的 
+triton-ascend 版本。
 
 详细安装手册参见[Installation.md](./docs/Installation.md)
-
-## **系统要求**
+### **系统要求**
 
 - GCC >= 9.4.0
 - GLIBC >= 2.29
@@ -41,12 +93,6 @@ apt install ccache # optional
 ```
 pip install ninja cmake wheel pybind11 # build-time dependencies
 pip install attrs==24.2.0 numpy==1.26.4 scipy==1.13.1 decorator==5.1.1 psutil==6.0.0 pytest==8.3.2 pytest-xdist==3.6.1 pyyaml torch==2.6.0 torch-npu==2.6.0rc1 # torch dependencies
-```
-
-## **克隆 Triton-Ascend**
-
-```
-git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shallow-submodules
 ```
 
 ## **基于LLVM构建**
@@ -107,6 +153,12 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
     -DLLVM_ENABLE_LLD=ON
   ninja install
   ```
+### **克隆 Triton-Ascend**
+
+```
+git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shallow-submodules
+```
+
 ### **构建 Triton-Ascend**
 
 1. 源码安装

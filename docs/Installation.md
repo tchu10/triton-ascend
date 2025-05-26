@@ -1,12 +1,13 @@
 # 安装指南
-# Python wheel安装
-通过 Python Wheel 安装包进行安装是最快捷、最简便的方式。使用下面命令安装：
-```
-pip install triton-ascend==3.2.0rc1
-```
-# 源代码安装
-## 前置步骤
+本文档提供了2种安装方式以满足不同用户的需求。您可以根据自己的具体需求选择最合适的安装方法。
 
+1. Python wheel安装：
+通过 Python Wheel 安装包进行安装是最快捷、最简便的方式，适用于希望快速部署 Triton-Ascend 的用户。
+2. 源代码编译安装：
+如果您需要对 triton-ascend 进行开发或自定义修改，则应采用源代码编译安装的方法。这种方式允许您根据项目需求调整源代码，并编译安装定制化的 
+triton-ascend 版本。
+
+## 环境准备
 ### Python版本要求
 
 当前Triton-Ascend要求的Python版本为:**py3.9-py3.11**。
@@ -26,7 +27,7 @@ https://www.hiascend.com/developer/download/community/result?module=cann
 ```
 社区安装指引链接：
 ```
-https://www.hiascend.com/developer/download/community/result?module=cann
+https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha002/softwareinst/instg/instg_0001.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit
 ```
 该文档提供了完整的安装流程说明与依赖项配置建议，适用于需要全面部署 CANN 环境的用户。
 
@@ -42,13 +43,32 @@ pip install decorator cffi protobuf==3.20 attrs pyyaml pathlib2 scipy psutil abs
 pip install torch_npu==2.6.0rc1
 ```
 
-## 源码编译安装
+## Python wheel 安装 Triton-Ascend
+通过 Python Wheel 安装包安装 Triton-Ascend 是最快捷、最简便的方式。使用下面命令安装：
+```
+pip install triton-ascend
+```
+运行Triton示例
+ ```
+ # 设置CANN环境变量（以root用户默认安装路径`/usr/local/Ascend`为例）
+ source /usr/local/Ascend/ascend-toolkit/set_env.sh
+ # 运行tutorials示例：
+ python3 ./triton-ascend/ascend/examples/tutorials/01-vector-add.py
+ ```
+## 源代码安装 Triton-Ascend
+如果您需要对 triton-ascend 进行开发或自定义修改，则应采用源代码编译安装的方法。这种方式允许您根据项目需求调整源代码，并编译安装定制化的 
+triton-ascend 版本。
 
+详细安装手册参见[Installation.md](./docs/Installation.md)
 ### **系统要求**
 
 - GCC >= 9.4.0
 - GLIBC >= 2.29
 - clang
+
+### 包版本依赖
+
+Python支持版本为:**py3.9-py3.11**, torch及torch_npu支持版本为:**2.6.0**。
 
 ### 安装系统库依赖
 
@@ -68,12 +88,6 @@ pip install ninja cmake wheel pybind11 # build-time dependencies
 pip install attrs==24.2.0 numpy==1.26.4 scipy==1.13.1 decorator==5.1.1 psutil==6.0.0 pytest==8.3.2 pytest-xdist==3.6.1 pyyaml torch==2.6.0 torch-npu==2.6.0rc1 # torch dependencies
 ```
 
-### **克隆 Triton-Ascend**
-
-```
-git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shallow-submodules
-```
-
 ### **基于LLVM构建**
 
 Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编译器也依赖 LLVM 生成 NPU 代码，因此需要编译 LLVM 源码才能使用。请关注依赖的 LLVM 特定版本。
@@ -87,6 +101,7 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
    ```
 
 2. 构建LLVM。可以运行以下命令：
+
 - 注：请在下面指令中设置您想安装LLVM的目标路径 -DCMAKE_INSTALL_PREFIX=yourpath/llvm-install
 
    ```
@@ -131,6 +146,12 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
     -DLLVM_ENABLE_LLD=ON
   ninja install
   ```
+### **克隆 Triton-Ascend**
+
+```
+git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shallow-submodules
+```
+
 ### **构建 Triton-Ascend**
 
 1. 源码安装
