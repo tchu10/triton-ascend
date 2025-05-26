@@ -9,7 +9,6 @@ triton-ascend 版本。
 
 ## 环境准备
 ### Python版本要求
-
 当前Triton-Ascend要求的Python版本为:**py3.9-py3.11**。
 
 ### 安装Ascend CANN
@@ -19,7 +18,7 @@ triton-ascend 版本。
 
 您可以访问昇腾社区官网，根据其提供的软件安装指引完成 CANN 的安装配置。
 
-在安装过程中，请选择 CANN 版本 8.2.RC1.alpha002，并根据实际环境指定操作系统、安装方式和业务场景。
+在安装过程中，请选择 CANN 版本 **8.2.RC1.alpha002**，并根据实际环境指定CPU架构(AArch64/X86_64)，NPU硬件型号(910b)。
 
 社区下载链接：
 ```
@@ -33,7 +32,7 @@ https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha002/s
 
 ### 安装python依赖
 ```
-pip install decorator cffi protobuf==3.20 attrs pyyaml pathlib2 scipy psutil absl-py tvm cloudpickle pybind11 einops pytest te numpy
+pip install attrs==24.2.0 numpy==1.26.4 scipy==1.13.1 decorator==5.1.1 psutil==6.0.0 pytest==8.3.2 pytest-xdist==3.6.1 pyyaml
 ```
 
 ### 安装torch_npu
@@ -60,11 +59,10 @@ pip install triton-ascend
 triton-ascend 版本。
 
 详细安装手册参见[Installation.md](./docs/Installation.md)
-### **系统要求**
-
+### 系统要求
 - GCC >= 9.4.0
-- GLIBC >= 2.29
-- clang
+- GLIBC >= 2.27
+## 依赖
 
 ### 包版本依赖
 
@@ -78,7 +76,7 @@ Python支持版本为:**py3.9-py3.11**, torch及torch_npu支持版本为:**2.6.0
 ```
 以ubuntu系统为例：
 apt update
-apt install zlib1g-dev lld clang
+apt install zlib1g-dev clang-15 lld-15
 apt install ccache # optional
 ```
 
@@ -88,7 +86,7 @@ pip install ninja cmake wheel pybind11 # build-time dependencies
 pip install attrs==24.2.0 numpy==1.26.4 scipy==1.13.1 decorator==5.1.1 psutil==6.0.0 pytest==8.3.2 pytest-xdist==3.6.1 pyyaml torch==2.6.0 torch-npu==2.6.0rc1 # torch dependencies
 ```
 
-### **基于LLVM构建**
+## 基于LLVM构建
 
 Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编译器也依赖 LLVM 生成 NPU 代码，因此需要编译 LLVM 源码才能使用。请关注依赖的 LLVM 特定版本。
 
@@ -100,10 +98,45 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
    git checkout b5cc222d7429fe6f18c787f633d5262fac2e676f
    ```
 
-2. 构建LLVM。可以运行以下命令：
-
-- 注：请在下面指令中设置您想安装LLVM的目标路径 -DCMAKE_INSTALL_PREFIX=yourpath/llvm-install
-
+2. clang构建安装LLVM
+  
+- 步骤1：推荐使用clang安装LLVM，环境上请安装clang、lld，并指定版本(推荐版本clang>=15，lld>=15)，
+  如未安装，请按下面指令安装clang、lld、ccache：
+  ``` 
+  apt-get install -y clang-15 lld-15 ccache
+  ``` 
+  如果环境上有多个版本的clang，请设置clang为当前安装的版本clang-15，如果clang只有15版本，或已指定15版本则跳过该步骤:
+  ``` 
+  update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 20; \
+  update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 20; \
+  update-alternatives --install /usr/bin/lld lld /usr/bin/lld-15 20
+  ```
+- 步骤2：设置环境变量 LLVM_INSTALL_PREFIX 为您的目标安装路径：
+   ```
+   export LLVM_INSTALL_PREFIX=/path/to/llvm-install
+   ```
+- 步骤3：执行以下命令进行构建和安装LLVM：
+  ```
+  cd $HOME/llvm-project  # your clone of LLVM.
+  mkdir build
+  cd build
+  cmake ../llvm \
+    -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DLLVM_ENABLE_ASSERTIONS=ON \
+    -DLLVM_ENABLE_PROJECTS="mlir;llvm;lld" \
+    -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
+    -DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL_PREFIX} \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++
+  ninja install
+  ```
+3. GCC构建安装LLVM
+- 步骤1：推荐使用clang，如果只能使用GCC安装，请注意[注1] [注2]。设置环境变量 LLVM_INSTALL_PREFIX 为您的目标安装路径：
+   ```
+   export LLVM_INSTALL_PREFIX=/path/to/llvm-install
+   ```
+- 步骤2：执行以下命令进行构建和安装：
    ```
    cd $HOME/llvm-project  # your clone of LLVM.
    mkdir build
@@ -114,64 +147,28 @@ Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编�
       -DLLVM_ENABLE_ASSERTIONS=ON \
       -DLLVM_ENABLE_PROJECTS="mlir;llvm"  \
       -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
-      -DCMAKE_INSTALL_PREFIX=yourpath/llvm-install
+      -DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL_PREFIX}
    ninja install
    ```
-- 说明：若环境上ccache已安装且正常运行，可设置`-DLLVM_CCACHE_BUILD=ON`加速构建, 否则请勿开启。
-- clang安装LLVM
-  
-  可使用clang安装LLVM，环境上按安装clang、lld，并指定版本(推荐版本clang>=15，lld>=15)，
-  以下面指令安装clang，：
-  ``` 
-  apt-get install -y clang-15 lld-15 ccache
-  ``` 
-  如果环境上有多个版本的clang，请设置clang为当前安装的版本clang-15:
-  ``` 
-  update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 20; \
-  update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 20; \
-  update-alternatives --install /usr/bin/lld lld /usr/bin/lld-15 20
-  ```
-  设置C编译器为clang，以下面指令安装LLVM：
-  ```
-  cd build
-  cmake ../llvm \
-    -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_ENABLE_ASSERTIONS=ON \
-    -DLLVM_ENABLE_PROJECTS="mlir;llvm" \
-    -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
-    -DCMAKE_INSTALL_PREFIX=yourpath/llvm-install \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++ \
-    -DLLVM_ENABLE_LLD=ON
-  ninja install
-  ```
-### **克隆 Triton-Ascend**
+- 注1：若在编译时出现错误`ld.lld: error: undefined symbol`，可在步骤2中加入设置`-DLLVM_ENABLE_LLD=ON`。
+- 注2：若环境上ccache已安装且正常运行，可设置`-DLLVM_CCACHE_BUILD=ON`加速构建, 否则请勿开启。
+
+
+### 克隆 Triton-Ascend
 
 ```
 git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shallow-submodules
 ```
 
-### **构建 Triton-Ascend**
+### 构建 Triton-Ascend
 
 1. 源码安装
 
-- 注1：请在下面指令中设置您在上一步LLVM安装的目标路径 LLVM_SYSPATH=yourpath/llvm-install
-- 注2：请确保已安装clang>=15，lld>=15，TRITON_BUILD_WITH_CLANG_LLD=true使用了clang和lld
+- 步骤1：请确认已设置[基于LLVM构建]章节中，LLVM安装的目标路径 ${LLVM_INSTALL_PREFIX}
+- 步骤2：请确认已安装clang>=15，lld>=15，ccache
    ```
    cd triton-ascend/
-   LLVM_SYSPATH=yourpath/llvm-install \
-   TRITON_PLUGIN_DIRS=./ascend \
-   TRITON_BUILD_WITH_CLANG_LLD=true \
-   TRITON_BUILD_PROTON=OFF \
-   TRITON_WHEEL_NAME="triton" \
-   TRITON_APPEND_CMAKE_ARGS="-DTRITON_BUILD_UT=OFF" \
-   python3 setup.py install
-   ```
-   如果已安装`ccache`，可以使用以下命令加速编译 TRITON_BUILD_WITH_CCACHE=true。
-   ```
-   cd triton-ascend/
-   LLVM_SYSPATH=yourpath/llvm-install \
+   LLVM_SYSPATH=${LLVM_INSTALL_PREFIX} \
    TRITON_PLUGIN_DIRS=./ascend \
    TRITON_BUILD_WITH_CCACHE=true \
    TRITON_BUILD_WITH_CLANG_LLD=true \
@@ -180,6 +177,15 @@ git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shal
    TRITON_APPEND_CMAKE_ARGS="-DTRITON_BUILD_UT=OFF" \
    python3 setup.py install
    ```
+- 注3：如果遇到报错信息 ld.lld: error: unable to find library -lstdc++fs，说明链接器无法找到 stdc++fs 库。该库用于支持 GCC 9 之前版本的文件系统特性。此时需要手动删除以下两个 CMake 文件中相关的代码片段：
+- triton-ascend/CMakeLists.txt
+- triton-ascend/triton/CMakeLists.txt
+   ```
+   if (NOT WIN32 AND NOT APPLE)
+   link_libraries(stdc++fs)
+   endif()
+   ```
+  删除后重新构建项目即可解决该问题。
 
 2. 运行Triton示例
    ```
