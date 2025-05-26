@@ -849,6 +849,20 @@ void BlockDataParser::rewriteAdvanceOp(
   BlockData blockData;
   parse(op.getOperand(0), blockData, loc, rewriter, known);
 
+  // region [BUGFIX] Add the code block below following the same logic as 'BlockDataParser::rewriteAddPtr' function.
+  known[op.getResult()] = blockData;
+  auto inferedSize = 1;
+  for (int i = blockData.getSizesRef().size() - 1; i >= 0; i--) {
+    auto strideConst = getConstantIntValue(blockData.getStridesRef()[i]);
+    auto sizeConst = getConstantIntValue(blockData.getSizesRef()[i]);
+    assert(sizeConst.has_value());
+    if (sizeConst.value() == 1 && strideConst && strideConst.value() == 0) {
+      blockData.getStridesRef()[i] = rewriter.getIndexAttr(inferedSize);
+    }
+    inferedSize *= sizeConst.value();
+  }
+  // endregion
+
   SmallVector<OpFoldResult> incrementOffsets =
       llvm::map_to_vector(op.getOffsets(), [&](Value offset) {
         return getOpFoldResultOfLayoutInfo(offset, rewriter);
