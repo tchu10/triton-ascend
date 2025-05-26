@@ -45,6 +45,46 @@ def fn_npu_(output_ptr, x_ptr,y_ptr,z_ptr,output_ptr1,XB : tl.constexpr,YB : tl.
     # tl.store(output_ptr + tl.arange(0,ZB*YB)[:,None]*XB+xidx[None,:], xx)
     # tl.store(output_ptr + xidx[:,None]*YB+yidx[None,:], yy)
 
+@triton.jit
+def fn_npu_2d(output_ptr, x_ptr, y_ptr, z_ptr, output_ptr1, XB: tl.constexpr, YB: tl.constexpr, ZB: tl.constexpr):
+    xoffset = tl.program_id(0)
+    block_ptr_in = tl.make_block_ptr(
+        base=x_ptr,
+        shape=(XB, YB),
+        strides=(YB, 1),
+        offsets=(6 + xoffset, 5),
+        block_shape=(XB, YB),
+        order=(1, 0),
+    )
+    bbptr = tl.advance(block_ptr_in, (-6, -5))
+    # XB,YB,1
+    X = tl.load(bbptr)
+
+    block_ptr_out = tl.make_block_ptr(
+        base=output_ptr,
+        shape=(XB, YB),
+        strides=(YB, 1),
+        offsets=(xoffset, 0),
+        block_shape=(XB, YB),
+        order=(1, 0),
+    )
+    tl.store(block_ptr_out, X)
+
+@pytest.mark.parametrize('dtype', ["int32", "float32", "int16"])
+@pytest.mark.parametrize('shape', [(1, 3), (3, 1), (1, 13), (13, 1)])
+def test_advance_supplement(dtype, shape):
+    x = torch.randint(low=-128,high=128,size=shape,dtype=eval('torch.' + dtype)).npu()
+    y = torch.randint(low=-128,high=128,size=shape,dtype=eval('torch.' + dtype)).npu()
+    z = torch.randint(low=-128,high=128,size=shape,dtype=eval('torch.' + dtype)).npu()
+
+    output = torch.randint(1, shape, dtype=eval('torch.' + dtype)).npu()
+    output1 = output
+
+    a = x
+
+    fn_npu_2d[1,1,1](output, x, y, z, output1, XB=shape[0], YB=shape[1], ZB=1)
+
+    torch.testing.assert_close(output, a)
 
 
 paras = [
