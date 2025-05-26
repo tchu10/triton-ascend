@@ -47,7 +47,6 @@ def test_case2(dtype, shape):
 invalid_types = [
     'int8',
     'int16',
-    'uint32',
     'int64',
     'float16',
     'float32',
