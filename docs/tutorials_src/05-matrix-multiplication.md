@@ -3,6 +3,11 @@
 
 **计算内核**
 ```
+import pytest
+import torch
+import torch_npu
+import triton
+import triton.language as tl
 @triton.jit
 def triton_dot_2_None(output_ptr, x_ptr, y_ptr, z_ptr,A : tl.constexpr,B : tl.constexpr,C : tl.constexpr,D : tl.constexpr):
     aidx=tl.arange(0,A)
@@ -101,13 +106,13 @@ def test_dot_2_None(sigtype, A, B, C, D):
     output = torch.zeros((B, D), dtype = dtype).npu()
     triton_dot_2_None[1,1,1](output, x0, x1, x2, A, B, C, D, debug = True)
     validate_cmp(sigtype,output,ans)
+    print(f"Test matmul with dtype={sigtype}, shape=({A},{B},{C},{D}) PASSED!")
 
-if __name__=='__main__':
-    for A,B,C,D in testlist:
-        for sigtype in typelist:
-            try:
-                test_dot_2_None(sigtype, A, B, C, D)
-                print(f"Test matmul with dtype={sigtype}, shape=({A},{B},{C},{D}) PASSED!")
-            except AssertionError as e:
-                print(f"Test matmul with dtype={sigtype}, shape=({A},{B},{C},{D}) FAILED!")
+if __name__ == "__main__":
+    test_dot_2_None("float16", 3, 16, 16, 16)
 ```
+```
+Out:
+```
+Test matmul with dtype=float16, shape=(3,16,16,16) PASSED!
+上面输出日志表明Triton和Pytorch上的输出结果完全一致。

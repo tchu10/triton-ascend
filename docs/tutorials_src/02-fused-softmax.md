@@ -7,6 +7,12 @@
 
 使用原生 PyTorch 对 X 逐行进行 Softmax 计算
 ```
+import torch
+import torch_npu
+
+import triton
+import triton.language as tl
+
 def naive_softmax(x):
     """
     我们减去最大元素以避免溢出。Softmax 对于这种偏移是不变的。
@@ -113,7 +119,7 @@ print(y_torch)
 print(f'The maximum difference between torch and triton is '
       f'{torch.max(torch.abs(y_triton-y_torch))}')
 ```
-结果与预期相同。
+Out:
 ```
 tensor([[0.0002, 0.0017, 0.0009,  ..., 0.0009, 0.0013, 0.0073],
         [0.0001, 0.0004, 0.0006,  ..., 0.0006, 0.0004, 0.0003],
@@ -133,3 +139,4 @@ tensor([[0.0002, 0.0017, 0.0009,  ..., 0.0009, 0.0013, 0.0073],
        device='npu:0')
 The maximum difference between torch and triton is 1.4901161193847656e-08
 ```
+"The maximum difference between torch and triton is 1.4901161193847656e-08"表示Triton和PyTorch的输出结果非常接近，肉眼不可区分。

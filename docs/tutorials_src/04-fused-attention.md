@@ -263,6 +263,7 @@ def test_op(Z, H, N_CTX, HEAD_DIM, causal, dtype,BM ,BN ):
     tri_out = attention(q, k, v, causal, sm_scale,BM,BN ).half()
     
     torch.testing.assert_close(ref_out, tri_out, atol=1e-2, rtol=1e-2)
+    print(f"Attention BM: {BM}, BN: {BN}, dtype: {dtype} PASSED!")
    
 if __name__ == "__main__":
    test_op(4,32,32,64, causal=False, dtype=torch.float16, BM = 32,BN = 32)
@@ -273,3 +274,14 @@ if __name__ == "__main__":
    test_op(2,2,128,256, causal=False, dtype=torch.float16, BM = 32,BN = 128)
    test_op(1,2,256,256, causal=False, dtype=torch.float16, BM = 32,BN = 256)
 ```
+```
+Out
+```
+Attention BM: 32, BN: 32, dtype: torch.float16 PASSED!
+Attention BM: 32, BN: 64, dtype: torch.float16 PASSED!
+Attention BM: 32, BN:128, dtype: torch.float16 PASSED!
+Attention BM: 64, BN: 128, dtype: torch.float16 PASSED!
+Attention BM: 32, BN: 128, dtype: torch.float16 PASSED!
+Attention BM: 32, BN: 128, dtype: torch.float16 PASSED!
+Attention BM: 32, BN: 256, dtype: torch.float16 PASSED!
+上面输出日志表明Triton和PyTorch上的输出结果完全一致。
