@@ -47,7 +47,7 @@ public:
  * Rewrite arith.select with contiguouse mask to
  * tensor.extract_slice/insert_slice.
  */
-class SelectConverter : public OpRewritePattern<arith::SelectOp> {
+class SelectCanonicalizer : public OpRewritePattern<arith::SelectOp> {
 public:
   using OpRewritePattern<arith::SelectOp>::OpRewritePattern;
   LogicalResult matchAndRewrite(arith::SelectOp op,
@@ -99,6 +99,18 @@ public:
     rewriter.replaceOp(op, extractOp);
     return success();
   }
+};
+
+/*
+ * Rewrite tt.make_tensor_ptr with non-contiguous order to
+ * tt.make_tensor_ptr + tt.load + tt.trans.
+ */
+class MakeTensorPtrCanonicalizer
+    : public OpRewritePattern<triton::MakeTensorPtrOp> {
+public:
+  using OpRewritePattern<triton::MakeTensorPtrOp>::OpRewritePattern;
+  LogicalResult matchAndRewrite(triton::MakeTensorPtrOp op,
+                                PatternRewriter &rewriter) const override;
 };
 
 class DenseConstantConverter : public OpConversionPattern<arith::ConstantOp> {
@@ -338,7 +350,7 @@ public:
                   ConversionPatternRewriter &rewriter) const override;
 };
 
-class AssertConverter : public OpRewritePattern<triton::AssertOp> {
+class AssertCanonicalizer : public OpRewritePattern<triton::AssertOp> {
 public:
   using OpRewritePattern<triton::AssertOp>::OpRewritePattern;
 
