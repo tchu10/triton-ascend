@@ -3,7 +3,7 @@ from triton.language.math import _check_dtype, _add_math_1arg_docstr, _add_math_
 from triton.language import semantic
 
 @core.builtin
-@_check_dtype(dtypes=["int32"])
+@_check_dtype(dtypes=["int32", "uint32"])
 @_add_math_2arg_docstr("most significant N bits of the 2N-bit product")
 def umulhi(x, y, _builder=None):
     x = semantic.to_tensor(x, _builder)
