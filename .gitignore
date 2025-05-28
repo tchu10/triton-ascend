@@ -6,5 +6,6 @@ kernel_meta/
 fusion_result.json
 compile_commands.json
 *.egg-info/
-build/
+build/*
+!build/docker/
 dist/
