@@ -95,10 +95,10 @@
 |                          | atomic_or              | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
 |                          | atomic_xchg            | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
 |                          | atomic_xor             | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
-| Random Number Generation | randint4x              | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
-|                          | randint                | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
-|                          | rand                   | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
-|                          | randn                  | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
+| Random Number Generation | randint4x              | ×    | ×     | ✓     | ×      | ×     | ×    | ×    | ×    | ×    |
+|                          | randint                | ×    | ×     | ✓     | ×      | ×     | ×    | ×    | ×    | ×    |
+|                          | rand                   | ×    | ×     | ×     | ×      | ×     | ×    | ✓    | ×    | ×    |
+|                          | randn                  | ×    | ×     | ×     | ×      | ×     | ×    | ✓    | ×    | ×    |
 |         Iterators        | range                  | ✓    | ✓     | ✓     | ×      | ✓     | ×    | ×    | ×    | ×    |
 |                          | static_range           | ✓    | ✓     | ✓     | ×      | ✓     | ×    | ×    | ×    | ×    |
 |      Inline Assembly     | inline_asm_elementwise | ×    | ×     | ×     | ×      | ×     | ×    | ×    | ×    | ×    |
