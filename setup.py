@@ -674,7 +674,7 @@ class plugin_bdist_wheel(bdist_wheel):
         bdist_wheel.run(self)
 
         if is_manylinux:
-            file = glob.glob(os.path.join(self.dist_dir, "*linux*.whl"))[0]
+            file = glob.glob(os.path.join(self.dist_dir, "*-linux_*.whl"))[0]
 
             auditwheel_cmd = [
                 "auditwheel",
