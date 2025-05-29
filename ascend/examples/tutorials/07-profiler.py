@@ -46,7 +46,7 @@ def test_add(x0, x1):
         return res
 
     @triton.jit
-    def triton_kernel(out_ptr0, in_ptr0, in_ptr1,
+    def triton_kernel_add(out_ptr0, in_ptr0, in_ptr1,
                       XS: tl.constexpr):
         idx = tl.arange(0, XS)
         tmp0 = tl.load(in_ptr0 + idx)
@@ -56,7 +56,7 @@ def test_add(x0, x1):
 
     def triton_func(x0, x1):
         y0 = torch.empty_like(x0)
-        triton_kernel[1, 1, 1](y0, x0, x1, N)
+        triton_kernel_add[1, 1, 1](y0, x0, x1, N)
         return y0
 
     torch_ref = torch_func(x0, x1)
@@ -76,7 +76,7 @@ def test_or(x0, x1):
         return res
 
     @triton.jit
-    def triton_kernel(out_ptr0, in_ptr0, in_ptr1,
+    def triton_kernel_or(out_ptr0, in_ptr0, in_ptr1,
                       XS: tl.constexpr):
         idx = tl.arange(0, XS)
         tmp0 = tl.load(in_ptr0 + idx)
@@ -86,7 +86,7 @@ def test_or(x0, x1):
 
     def triton_func(x0, x1):
         y0 = torch.empty_like(x0)
-        triton_kernel[1, 1, 1](y0, x0, x1, N)
+        triton_kernel_or[1, 1, 1](y0, x0, x1, N)
         return y0
 
     torch_ref = torch_func(x0, x1)
